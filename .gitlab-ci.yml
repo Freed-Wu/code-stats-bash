@@ -1,0 +1,8 @@
+before_script:
+  - apt-get update -qq && apt-get install -y -qq shellcheck
+
+shellcheck:
+  script:
+    # shellcheck doesn't support zsh so replace zsh-specific stuff and
+    # run in bash mode
+    - sed 's/&|/\&/' codestats.plugin.zsh | shellcheck --shell=bash -
