@@ -26,7 +26,7 @@ Add a line for the plugin, run `zgen update`, then restart the shell by e.g. `ex
 Clone this git repo and source the script directly.
 
 ```
-source codestats.zsh
+source codestats.plugin.zsh
 ```
 
 ### Other plugin managers (Zplug, Antigen, ...)
