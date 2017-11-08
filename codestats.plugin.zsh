@@ -1,10 +1,15 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.2.0"
+_codestats_version="0.3.0"
 
 declare -g -i _codestats_xp=0
 declare -g -i _codestats_pulse_time
 _codestats_pulse_time=$(date +%s)
+
+# Because each `curl` call is forked into a subshell to keep the interactive
+# shell responsive, the consecutive error count cannot be updated in a
+# variable. So we use a temp file, one error per line.
+_codestats_consecutive_errors=$(mktemp)
 
 # Logging: write to file if CODESTATS_LOG_FILE is set and exists
 _codestats_log()
@@ -48,11 +53,6 @@ _codestats_send_pulse()
 
         _codestats_log "Sending pulse (${_codestats_xp} xp) to ${url}"
 
-        local error_file=/dev/null
-        if [ -w "${CODESTATS_LOG_FILE}" ]; then
-            error_file="${CODESTATS_LOG_FILE}"
-        fi
-
         local payload
         payload=$(_codestats_payload ${_codestats_xp})
 
@@ -61,16 +61,38 @@ _codestats_send_pulse()
             --header "X-API-Token: ${CODESTATS_API_KEY}" \
             --user-agent "code-stats-zsh/${_codestats_version}" \
             --data "${payload}" \
+            --request POST \
             --silent \
             --output /dev/null \
-            --show-error \
-            --request POST \
+            --write-out "%{http_code}" \
             "${url}" \
-            2>> "$error_file" \
+            | _codestats_handle_response_status \
             &|
 
         _codestats_xp=0
     fi
+}
+
+# Error handling based on HTTP status
+_codestats_handle_response_status()
+{
+    local _status
+    _status=$(cat -)
+    case ${_status} in
+        200 | 201 )
+            _codestats_log "Success (${_status})!"
+            # clear error count
+            echo -n >! "${_codestats_consecutive_errors}"
+            ;;
+        000)
+            _codestats_log "No response from server!"
+            echo "${_status}" >> "${_codestats_consecutive_errors}"
+            ;;
+        *)
+            _codestats_log "Server responded with error ${_status}!"
+            echo "${_status}" >> "${_codestats_consecutive_errors}"
+            ;;
+    esac
 }
 
 _codestats_pulse_url()
@@ -92,6 +114,16 @@ EOF
 # Check time since last pulse; maybe send pulse
 _codestats_poll()
 {
+    local -i error_count
+    error_count=$(wc -l < "${_codestats_consecutive_errors}")
+    if (( error_count > 4 )); then
+        >&2 echo "code-stats-zsh: received ${error_count}" \
+                "consecutive errors when trying to save XP. Stopping."
+        _codestats_log "Received too many consecutive errors! Stopping..."
+        _codestats_stop
+        return
+    fi
+
     local now
     now=$(date +%s)
     if (( now - _codestats_pulse_time > 10 )); then
@@ -120,6 +152,14 @@ _codestats_init()
     add-zsh-hook zshexit _codestats_exit
 
     _codestats_log "Initialization complete."
+}
+
+# Stop because there was an error. Overwrite handler functions.
+_codestats_stop()
+{
+    _codestats_log "Stopping zsh-code-stats. Overwriting hook functions with no-ops."
+    _codestats_poll() { true; }
+    _codestats_exit() { true; }
 }
 
 if [ -n "${CODESTATS_API_KEY}" ]; then
