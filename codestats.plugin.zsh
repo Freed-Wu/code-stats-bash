@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.1"
+_codestats_version="0.3.2"
 
 declare -g -i _codestats_xp=0
 declare -g -i _codestats_pulse_time
@@ -51,10 +51,8 @@ _codestats_send_pulse()
     local -i error_count
     error_count=$(wc -l < "${_codestats_consecutive_errors}")
     if (( error_count > 4 )); then
-        >&2 echo "code-stats-zsh: received ${error_count}" \
-                "consecutive errors when trying to save XP. Stopping."
         _codestats_log "Received too many consecutive errors! Stopping..."
-        _codestats_stop
+        _codestats_stop "Received ${error_count} onsecutive errors when trying to save XP."
         return
     fi
 
@@ -91,17 +89,28 @@ _codestats_handle_response_status()
     local _status
     _status=$(cat -)
     case ${_status} in
+        000)
+            _codestats_log "Network error!"
+            # don't stop; maybe the network will start working eventually
+            ;;
         200 | 201 )
             _codestats_log "Success (${_status})!"
             # clear error count
             echo -n >! "${_codestats_consecutive_errors}"
             ;;
-        000)
-            _codestats_log "No response from server!"
+        3* )
+            _codestats_log "Unexpected redirect ${_status}!"
+            _codestats_stop "Server responded with a redirect. Perhaps code-stats-zsh is out of date?"
+            # this problem will probably not go away. stop immediately.
+            ;;
+        4* | 5* )
+            _codestats_log "Server responded with error ${_status}!"
+            # some of 4xx and 5xx statuses may indicate a temporary problem
             echo "${_status}" >> "${_codestats_consecutive_errors}"
             ;;
         *)
-            _codestats_log "Server responded with error ${_status}!"
+            _codestats_log "Unexpected response status ${_status}!"
+            # whatever happened, stop if it persists
             echo "${_status}" >> "${_codestats_consecutive_errors}"
             ;;
     esac
@@ -160,6 +169,7 @@ _codestats_init()
 _codestats_stop()
 {
     _codestats_log "Stopping zsh-code-stats. Overwriting hook functions with no-ops."
+    >&2 echo "code-stats-zsh: $* Stopping."
     _codestats_poll() { true; }
     _codestats_exit() { true; }
 }
