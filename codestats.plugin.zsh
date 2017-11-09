@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.0"
+_codestats_version="0.3.1"
 
 declare -g -i _codestats_xp=0
 declare -g -i _codestats_pulse_time
@@ -47,6 +47,18 @@ _codestats_rebind_widgets()
 # Pulse sending function
 _codestats_send_pulse()
 {
+    # Check that error count hasn't been exceeded
+    local -i error_count
+    error_count=$(wc -l < "${_codestats_consecutive_errors}")
+    if (( error_count > 4 )); then
+        >&2 echo "code-stats-zsh: received ${error_count}" \
+                "consecutive errors when trying to save XP. Stopping."
+        _codestats_log "Received too many consecutive errors! Stopping..."
+        _codestats_stop
+        return
+    fi
+
+    # If there's accumulated XP, send it
     if (( _codestats_xp > 0 )); then
         local url
         url="$(_codestats_pulse_url)"
@@ -114,16 +126,6 @@ EOF
 # Check time since last pulse; maybe send pulse
 _codestats_poll()
 {
-    local -i error_count
-    error_count=$(wc -l < "${_codestats_consecutive_errors}")
-    if (( error_count > 4 )); then
-        >&2 echo "code-stats-zsh: received ${error_count}" \
-                "consecutive errors when trying to save XP. Stopping."
-        _codestats_log "Received too many consecutive errors! Stopping..."
-        _codestats_stop
-        return
-    fi
-
     local now
     now=$(date +%s)
     if (( now - _codestats_pulse_time > 10 )); then
