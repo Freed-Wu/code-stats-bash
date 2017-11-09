@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.2"
+_codestats_version="0.3.3"
 
 declare -g -i _codestats_xp=0
 declare -g -i _codestats_pulse_time
@@ -147,6 +147,9 @@ _codestats_exit()
 {
     _codestats_log "Shell is exiting. Calling _codestats_send_pulse one last time."
     _codestats_send_pulse
+
+    # remove temp file
+    rm "${_codestats_consecutive_errors}"
 }
 
 _codestats_init()
@@ -172,6 +175,9 @@ _codestats_stop()
     >&2 echo "code-stats-zsh: $* Stopping."
     _codestats_poll() { true; }
     _codestats_exit() { true; }
+
+    # remove temp file
+    rm "${_codestats_consecutive_errors}"
 }
 
 if [ -n "${CODESTATS_API_KEY}" ]; then
