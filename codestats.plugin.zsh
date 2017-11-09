@@ -1,10 +1,11 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.3"
+_codestats_version="0.3.4"
+
+zmodload zsh/datetime
 
 declare -g -i _codestats_xp=0
-declare -g -i _codestats_pulse_time
-_codestats_pulse_time=$(date +%s)
+declare -g -i _codestats_pulse_time=${EPOCHSECONDS}
 
 # Because each `curl` call is forked into a subshell to keep the interactive
 # shell responsive, the consecutive error count cannot be updated in a
@@ -15,7 +16,9 @@ _codestats_consecutive_errors=$(mktemp)
 _codestats_log()
 {
     if [ -w "${CODESTATS_LOG_FILE}" ]; then
-        echo "$(date +%Y-%m-%dT%H:%M:%S) ($$) $*" >> "${CODESTATS_LOG_FILE}"
+        # EPOCHSECONDS is an integer, so disable globbing/splitting warning
+        # shellcheck disable=SC2086
+        echo "$(strftime %Y-%m-%dT%H:%M:%S ${EPOCHSECONDS}) ($$) $*" >> "${CODESTATS_LOG_FILE}"
     fi
 }
 
@@ -124,9 +127,10 @@ _codestats_pulse_url()
 # Create API payload
 _codestats_payload()
 {
+    # shellcheck disable=SC2086
     cat <<EOF
 {
-    "coded_at": "$(date +%Y-%m-%dT%H:%M:%S%z)",
+    "coded_at": "$(strftime %Y-%m-%dT%H:%M:%S%z ${EPOCHSECONDS})",
     "xps": [{"language": "Terminal (Zsh)", "xp": $1}]
 }
 EOF
@@ -135,11 +139,9 @@ EOF
 # Check time since last pulse; maybe send pulse
 _codestats_poll()
 {
-    local now
-    now=$(date +%s)
-    if (( now - _codestats_pulse_time > 10 )); then
+    if (( EPOCHSECONDS - _codestats_pulse_time > 10 )); then
         _codestats_send_pulse
-        _codestats_pulse_time=${now}
+        _codestats_pulse_time=${EPOCHSECONDS}
     fi
 }
 
