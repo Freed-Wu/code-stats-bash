@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.4"
+_codestats_version="0.3.5"
 
 zmodload zsh/datetime
 
@@ -15,7 +15,7 @@ _codestats_consecutive_errors=$(mktemp)
 # Logging: write to file if CODESTATS_LOG_FILE is set and exists
 _codestats_log()
 {
-    if [ -w "${CODESTATS_LOG_FILE}" ]; then
+    if [[ -w "${CODESTATS_LOG_FILE}" ]]; then
         # EPOCHSECONDS is an integer, so disable globbing/splitting warning
         # shellcheck disable=SC2086
         echo "$(strftime %Y-%m-%dT%H:%M:%S ${EPOCHSECONDS}) ($$) $*" >> "${CODESTATS_LOG_FILE}"
@@ -182,13 +182,13 @@ _codestats_stop()
     rm "${_codestats_consecutive_errors}"
 }
 
-if [ -n "${CODESTATS_API_KEY}" ]; then
+if [[ -n "${CODESTATS_API_KEY}" ]]; then
     _codestats_init
 else
     echo "code-stats-zsh requires CODESTATS_API_KEY to be set!"
     false
 fi
 
-if [ -n "${CODESTATS_LOG_FILE}" ] && [ ! -w "${CODESTATS_LOG_FILE}" ]; then
+if [[ -n "${CODESTATS_LOG_FILE}" && ! -w "${CODESTATS_LOG_FILE}" ]]; then
     echo "Warning: CODESTATS_LOG_FILE needs to exist and be writable!"
 fi
