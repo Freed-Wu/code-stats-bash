@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.5"
+_codestats_version="0.3.6"
 
 zmodload zsh/datetime
 
@@ -109,12 +109,12 @@ _codestats_handle_response_status()
         4* | 5* )
             _codestats_log "Server responded with error ${_status}!"
             # some of 4xx and 5xx statuses may indicate a temporary problem
-            echo "${_status}" >> "${_codestats_consecutive_errors}"
+            echo "${_status}" >>! "${_codestats_consecutive_errors}"
             ;;
         *)
             _codestats_log "Unexpected response status ${_status}!"
             # whatever happened, stop if it persists
-            echo "${_status}" >> "${_codestats_consecutive_errors}"
+            echo "${_status}" >>! "${_codestats_consecutive_errors}"
             ;;
     esac
 }
@@ -179,7 +179,7 @@ _codestats_stop()
     _codestats_exit() { true; }
 
     # remove temp file
-    rm "${_codestats_consecutive_errors}"
+    rm -f "${_codestats_consecutive_errors}"
 }
 
 if [[ -n "${CODESTATS_API_KEY}" ]]; then
