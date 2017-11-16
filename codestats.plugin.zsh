@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.6"
+_codestats_version="0.3.7"
 
 zmodload zsh/datetime
 
@@ -151,7 +151,7 @@ _codestats_exit()
     _codestats_send_pulse
 
     # remove temp file
-    rm "${_codestats_consecutive_errors}"
+    rm -f "${_codestats_consecutive_errors}"
 }
 
 _codestats_init()
