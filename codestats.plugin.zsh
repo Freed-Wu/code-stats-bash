@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.7"
+_codestats_version="0.3.8"
 
 zmodload zsh/datetime
 
@@ -51,8 +51,10 @@ _codestats_rebind_widgets()
 _codestats_send_pulse()
 {
     # Check that error count hasn't been exceeded
-    local -i error_count
-    error_count=$(wc -l < "${_codestats_consecutive_errors}")
+    local -i error_count=0
+    if [[ -r "${_codestats_consecutive_errors}" ]]; then
+        error_count=$(wc -l < "${_codestats_consecutive_errors}")
+    fi
     if (( error_count > 4 )); then
         _codestats_log "Received too many consecutive errors! Stopping..."
         _codestats_stop "Received ${error_count} onsecutive errors when trying to save XP."
