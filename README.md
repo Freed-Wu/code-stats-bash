@@ -16,7 +16,7 @@ This plugin is an early beta, so expect some rough edges.
 ### Zgen
 
 ```
-zgen load git@gitlab.com:code-stats/code-stats-zsh.git
+zgen load https://gitlab.com/code-stats/code-stats-zsh.git
 ```
 
 Add a line for the plugin, run `zgen update`, then restart the shell by e.g. `exec zsh`.
