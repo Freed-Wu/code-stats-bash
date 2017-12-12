@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.8"
+_codestats_version="0.3.9"
 
 zmodload zsh/datetime
 
@@ -25,7 +25,14 @@ _codestats_log()
 # Widget wrapper: add a keypress and call original widget
 _codestats_call_widget()
 {
-    _codestats_xp+=1
+    # Bracketed-paste-magic calls self-insert when pasting and sets $PASTED.
+    # Don't add xp for pasting.
+
+    # shellcheck disable=SC2004
+    if (( ! ${+PASTED} )); then
+        _codestats_xp+=1
+    fi
+
     builtin zle "$@"
 }
 
