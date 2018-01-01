@@ -33,6 +33,22 @@ source codestats.plugin.zsh
 
 Probably just pointing to the git repo will work.
 
+### Running on Windows Subsystem for Linux
+
+If you are running Zsh on Windows and see this message:
+
+```
+_codestats_send_pulse:23: nice(5) failed: operation not permitted
+```
+
+This is caused due to WSL not supporting `nice` and Zsh using it by default for
+backgrounded processes. As a workaround, in your `.zshrc`, set:
+
+```
+unsetopt BG_NICE
+```
+
+See the discussion in this related issue: https://github.com/Microsoft/WSL/issues/1887
 
 ## Options
 
