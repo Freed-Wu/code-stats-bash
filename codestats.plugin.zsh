@@ -18,7 +18,7 @@ _codestats_log()
     if [[ -w "${CODESTATS_LOG_FILE}" ]]; then
         # EPOCHSECONDS is an integer, so disable globbing/splitting warning
         # shellcheck disable=SC2086
-        echo "$(strftime %Y-%m-%dT%H:%M:%S ${EPOCHSECONDS}) ($$) $*" >> "${CODESTATS_LOG_FILE}"
+        echo "$(\strftime %Y-%m-%dT%H:%M:%S ${EPOCHSECONDS}) ($$) $*" >> "${CODESTATS_LOG_FILE}"
     fi
 }
 
@@ -78,7 +78,7 @@ _codestats_send_pulse()
         local payload
         payload=$(_codestats_payload ${_codestats_xp})
 
-        curl \
+        \curl \
             --header "Content-Type: application/json" \
             --header "X-API-Token: ${CODESTATS_API_KEY}" \
             --user-agent "code-stats-zsh/${_codestats_version}" \
@@ -99,7 +99,7 @@ _codestats_send_pulse()
 _codestats_handle_response_status()
 {
     local _status
-    _status=$(cat -)
+    _status=$(\cat -)
     case ${_status} in
         000)
             _codestats_log "Network error!"
@@ -139,7 +139,7 @@ _codestats_payload()
     # shellcheck disable=SC2086
     cat <<EOF
 {
-    "coded_at": "$(strftime %Y-%m-%dT%H:%M:%S%z ${EPOCHSECONDS})",
+    "coded_at": "$(\strftime %Y-%m-%dT%H:%M:%S%z ${EPOCHSECONDS})",
     "xps": [{"language": "Terminal (Zsh)", "xp": $1}]
 }
 EOF
