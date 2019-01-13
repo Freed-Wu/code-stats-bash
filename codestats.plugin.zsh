@@ -1,6 +1,6 @@
 # https://gitlab.com/code-stats/code-stats-zsh
 
-_codestats_version="0.3.9"
+_codestats_version="0.3.10"
 
 zmodload zsh/datetime
 

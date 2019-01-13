@@ -1,7 +1,5 @@
-before_script:
-  - apt-get update -qq && apt-get install -y -qq shellcheck
-
 shellcheck:
+  image: koalaman/shellcheck-alpine:stable
   script:
     # shellcheck doesn't support zsh so replace zsh-specific stuff and
     # run in bash mode
