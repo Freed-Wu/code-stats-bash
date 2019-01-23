@@ -33,6 +33,12 @@ source codestats.plugin.zsh
 
 Probably just pointing to the git repo will work.
 
+#### Zplug
+
+```
+zplug "code-stats/code-stats-zsh", from:gitlab, use:"codestats.plugin.zsh"
+```
+
 ### Running on Windows Subsystem for Linux
 
 If you are running Zsh on Windows and see this message:
