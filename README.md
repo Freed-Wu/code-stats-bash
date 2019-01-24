@@ -21,6 +21,14 @@ zgen load https://gitlab.com/code-stats/code-stats-zsh.git
 
 Add a line for the plugin, run `zgen update`, then restart the shell by e.g. `exec zsh`.
 
+### Zplug
+
+```
+zplug "code-stats/code-stats-zsh", from:gitlab, use:"codestats.plugin.zsh"
+```
+
+That's everything you need.
+
 ### Manual installation
 
 Clone this git repo and source the script directly.
@@ -32,12 +40,6 @@ source codestats.plugin.zsh
 ### Other plugin managers (Zplug, Antigen, ...)
 
 Probably just pointing to the git repo will work.
-
-#### Zplug
-
-```
-zplug "code-stats/code-stats-zsh", from:gitlab, use:"codestats.plugin.zsh"
-```
 
 ### Running on Windows Subsystem for Linux
 
