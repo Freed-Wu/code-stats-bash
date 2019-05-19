@@ -2,8 +2,6 @@
 
 Code-stats-zsh hooks onto Zsh, counts characters as you type and saves your statistics in Code::Stats. You'll receive XP for the language `Terminal (Zsh)` for each character, backspace/delete and enter you type.
 
-This plugin is an early beta, so expect some rough edges.
-
 ## Installation
 
 1. Ensure you have [`curl`](https://curl.haxx.se/).
