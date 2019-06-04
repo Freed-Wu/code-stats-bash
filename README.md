@@ -35,7 +35,7 @@ Clone this git repo and source the script directly.
 source codestats.plugin.zsh
 ```
 
-### Other plugin managers (Zplug, Antigen, ...)
+### Other plugin managers (Antigen, ...)
 
 Probably just pointing to the git repo will work.
 
