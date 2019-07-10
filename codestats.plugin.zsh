@@ -64,7 +64,7 @@ _codestats_send_pulse()
     fi
     if (( error_count > 4 )); then
         _codestats_log "Received too many consecutive errors! Stopping..."
-        _codestats_stop "Received ${error_count} onsecutive errors when trying to save XP."
+        _codestats_stop "Received ${error_count} consecutive errors when trying to save XP."
         return
     fi
 
