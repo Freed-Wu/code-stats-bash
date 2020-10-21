@@ -79,6 +79,7 @@ _codestats_send_pulse()
         payload=$(_codestats_payload ${_codestats_xp})
 
         \curl \
+            --max-time 5 \
             --header "Content-Type: application/json" \
             --header "X-API-Token: ${CODESTATS_API_KEY}" \
             --user-agent "code-stats-zsh/${_codestats_version}" \
