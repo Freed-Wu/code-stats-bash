@@ -46,7 +46,9 @@ yay -S codestats-bash
 
 ### Manual installation
 
-Clone this git repo and source the script directly.
+Clone this git repo and source the script directly. Please source it after any
+customization of `$PROMPT_COMMAND`, such as
+[gitstatus](https://github.com/romkatv/gitstatus):
 
 ```bash
 source codestats.sh

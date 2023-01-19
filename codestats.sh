@@ -116,6 +116,7 @@ EOF
 # Check time since last pulse; maybe send pulse
 _codestats_poll()
 {
+    _codestats_xp+=1
     if ((EPOCHSECONDS - _codestats_pulse_time > 10)); then
         _codestats_send_pulse
         _codestats_pulse_time=${EPOCHSECONDS}
