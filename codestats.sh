@@ -14,7 +14,7 @@ _codestats_consecutive_errors=$(mktemp)
 # Logging: write to file if CODESTATS_LOG_FILE is set and exists
 _codestats_log()
 {
-    if [[ -w "${CODESTATS_LOG_FILE}" ]]; then
+    if [[ -w ${CODESTATS_LOG_FILE} ]]; then
         # EPOCHSECONDS is an integer, so disable globbing/splitting warning
         # shellcheck disable=SC2086
         echo "$(\date +%FT%T%:z) ($$) $*" >> "${CODESTATS_LOG_FILE}"
@@ -26,7 +26,7 @@ _codestats_send_pulse()
 {
     # Check that error count hasn't been exceeded
     local -i error_count=0
-    if [[ -r "${_codestats_consecutive_errors}" ]]; then
+    if [[ -r ${_codestats_consecutive_errors} ]]; then
         error_count=$(wc -l < "${_codestats_consecutive_errors}")
     fi
     if ((error_count > 4)); then
@@ -76,7 +76,7 @@ _codestats_handle_response_status()
     200 | 201)
         _codestats_log "Success (${_status})!"
         # clear error count
-        echo -n "${_codestats_consecutive_errors}" > !
+        echo -n > "${_codestats_consecutive_errors}"
         ;;
     3*)
         _codestats_log "Unexpected redirect ${_status}!"
@@ -86,12 +86,12 @@ _codestats_handle_response_status()
     4* | 5*)
         _codestats_log "Server responded with error ${_status}!"
         # some of 4xx and 5xx statuses may indicate a temporary problem
-        echo "${_status}" "${_codestats_consecutive_errors}" >> !
+        echo "${_status}" >> "${_codestats_consecutive_errors}"
         ;;
     *)
         _codestats_log "Unexpected response status ${_status}!"
         # whatever happened, stop if it persists
-        echo "${_status}" "${_codestats_consecutive_errors}" >> !
+        echo "${_status}" >> "${_codestats_consecutive_errors}"
         ;;
     esac
 }
@@ -159,13 +159,13 @@ _codestats_stop()
     rm -f "${_codestats_consecutive_errors}"
 }
 
-if [[ -n "${CODESTATS_API_KEY}" ]]; then
+if [[ -n ${CODESTATS_API_KEY} ]]; then
     _codestats_init
 else
     echo "code-stats-bash requires CODESTATS_API_KEY to be set!"
     false
 fi
 
-if [[ -n "${CODESTATS_LOG_FILE}" && ! -w "${CODESTATS_LOG_FILE}" ]]; then
+if [[ -n ${CODESTATS_LOG_FILE} && ! -w ${CODESTATS_LOG_FILE} ]]; then
     echo "Warning: CODESTATS_LOG_FILE needs to exist and be writable!"
 fi
