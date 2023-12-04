@@ -45,7 +45,9 @@ _codestats_send_pulse()
         local payload
         payload=$(_codestats_payload ${_codestats_xp})
 
-        \curl \
+        # sub shell to disable job finish message
+        # [1]+  Done                    \curl XXX
+        (\curl \
             --max-time 5 \
             --header "Content-Type: application/json" \
             --header "X-API-Token: ${CODESTATS_API_KEY}" \
@@ -57,7 +59,7 @@ _codestats_send_pulse()
             --write-out "%{http_code}" \
             "${url}" |
             _codestats_handle_response_status \
-            &
+                &> /dev/null &)
 
         _codestats_xp=0
     fi
